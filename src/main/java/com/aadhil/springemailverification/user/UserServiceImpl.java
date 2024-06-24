@@ -8,12 +8,15 @@ import org.springframework.stereotype.Service;
 
 import com.aadhil.springemailverification.exception.UserAlreadyExistsException;
 import com.aadhil.springemailverification.registration.RegistrationRequest;
+import com.aadhil.springemailverification.registration.Token;
+import com.aadhil.springemailverification.registration.TokenRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -41,5 +44,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public void saveUserVerificationToken(User user, String verificationToken) {
+        Token token = new Token(verificationToken, user);
+        tokenRepository.save(token);
     }
 }
