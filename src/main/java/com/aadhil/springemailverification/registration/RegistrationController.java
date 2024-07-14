@@ -2,9 +2,11 @@ package com.aadhil.springemailverification.registration;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.aadhil.springemailverification.event.RegistrationCompleteEvent;
 import com.aadhil.springemailverification.user.User;
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class RegistrationController {
     private final UserService userService;
     private final ApplicationEventPublisher publisher;
+    private final TokenRepository tokenRepository;
 
     @PostMapping
     public String register(@RequestBody RegistrationRequest registrationRequest, final HttpServletRequest request) {
@@ -26,6 +29,11 @@ public class RegistrationController {
         publisher.publishEvent(new RegistrationCompleteEvent(user, applicationUrl(request)));
 
         return "Success! Please, check your email to verify your account.";
+    }
+
+    @GetMapping("/verify")
+    public String verifyEmail(@RequestParam("token") String token) {
+        return userService.validateToken(token);
     }
 
     private String applicationUrl(HttpServletRequest request) {
