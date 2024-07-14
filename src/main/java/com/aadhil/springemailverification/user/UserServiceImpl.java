@@ -1,5 +1,6 @@
 package com.aadhil.springemailverification.user;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,5 +51,28 @@ public class UserServiceImpl implements UserService {
     public void saveUserVerificationToken(User user, String verificationToken) {
         Token token = new Token(verificationToken, user);
         tokenRepository.save(token);
+    }
+
+    @Override
+    public String validateToken(String token) {
+        Token theToken = tokenRepository.findByToken(token);
+
+        if(theToken == null) {
+            return "Invalid token! Please try again.";
+        }
+
+        User theUser = theToken.getUser();
+
+        if(theUser.isEnabled()) {
+            return "This account has already been verified!";
+        }
+        if(theToken.getExpirationTime().isBefore(LocalDateTime.now())) {
+            tokenRepository.delete(theToken);
+            return "This token is already expired! Please try again.";
+        }
+        theUser.setEnabled(true);
+        userRepository.save(theUser);
+
+        return "This account verified successfully! Now you can login to your account.";
     }
 }
