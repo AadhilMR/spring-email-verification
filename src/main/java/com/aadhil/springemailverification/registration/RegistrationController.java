@@ -2,6 +2,7 @@ package com.aadhil.springemailverification.registration;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +20,7 @@ public class RegistrationController {
     private final ApplicationEventPublisher publisher;
 
     @PostMapping
-    public String register(RegistrationRequest registrationRequest, final HttpServletRequest request) {
+    public String register(@RequestBody RegistrationRequest registrationRequest, final HttpServletRequest request) {
         User user = userService.registerUser(registrationRequest);
 
         publisher.publishEvent(new RegistrationCompleteEvent(user, applicationUrl(request)));
