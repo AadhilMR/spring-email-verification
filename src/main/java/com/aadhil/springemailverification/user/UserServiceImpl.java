@@ -3,6 +3,7 @@ package com.aadhil.springemailverification.user;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -67,12 +68,21 @@ public class UserServiceImpl implements UserService {
             return "This account has already been verified!";
         }
         if(theToken.getExpirationTime().isBefore(LocalDateTime.now())) {
-            tokenRepository.delete(theToken);
-            return "This token is already expired! Please try again.";
+            return "This token is already expired! Please try again with <a href='"+ applicationUrl +"/register/resend-token?token="+ token +"'>this</a>.";
         }
         theUser.setEnabled(true);
         userRepository.save(theUser);
 
         return "This account verified successfully! Click <a href='"+ applicationUrl +"/users'>here</a> to login to your account.";
+    }
+
+    @Override
+    public Token generateNewToken(String oldToken) {
+        Token token = tokenRepository.findByToken(oldToken);
+        LocalDateTime tokenExpirationTime = new Token(oldToken).getExpirationTime();
+
+        token.setToken(UUID.randomUUID().toString());
+        token.setExpirationTime(tokenExpirationTime);
+        return tokenRepository.save(token);
     }
 }
