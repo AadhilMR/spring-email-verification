@@ -24,11 +24,11 @@ public class Token {
     private String token;
     private LocalDateTime expirationTime;
 
-    private static final int EXPIRATION_TIME = 5;
-
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    private static final int EXPIRATION_TIME = 5;
 
     public Token(String token, User user) {
         this.token = token;
