@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String validateToken(String token) {
+    public String validateToken(String token, String applicationUrl) {
         Token theToken = tokenRepository.findByToken(token);
 
         if(theToken == null) {
@@ -73,6 +73,6 @@ public class UserServiceImpl implements UserService {
         theUser.setEnabled(true);
         userRepository.save(theUser);
 
-        return "This account verified successfully! Now you can login to your account.";
+        return "This account verified successfully! Click <a href='"+ applicationUrl +"/users'>here</a> to login to your account.";
     }
 }
