@@ -32,8 +32,8 @@ public class RegistrationController {
     }
 
     @GetMapping("/verify")
-    public String verifyEmail(@RequestParam("token") String token) {
-        return userService.validateToken(token);
+    public String verifyEmail(@RequestParam("token") String token, final HttpServletRequest request) {
+        return userService.validateToken(token, applicationUrl(request));
     }
 
     private String applicationUrl(HttpServletRequest request) {
