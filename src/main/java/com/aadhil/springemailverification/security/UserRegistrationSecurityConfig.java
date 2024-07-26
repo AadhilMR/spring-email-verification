@@ -8,9 +8,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class UserRegistrationSecurityConfig {
+    private final UserAuthenticationEntryPoint authenticationEntryPoint;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -21,12 +26,15 @@ public class UserRegistrationSecurityConfig {
         return httpSecurity.cors()
                 .and().csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/register/**")
+                .requestMatchers("/api/**")
                 .permitAll()
                 .and()
                 .authorizeHttpRequests()
                 .requestMatchers("/users/**")
                 .hasAnyAuthority("USER", "ADMIN")
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(authenticationEntryPoint)
                 .and().formLogin().and().build();
     }
 }
