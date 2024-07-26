@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.aadhil.springemailverification.exception.UserAlreadyExistsException;
+import com.aadhil.springemailverification.login.LoginRequest;
 import com.aadhil.springemailverification.registration.RegistrationRequest;
 import com.aadhil.springemailverification.registration.Token;
 import com.aadhil.springemailverification.registration.TokenRepository;
@@ -46,6 +47,30 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public String loginUser(LoginRequest request) {
+        String returnMessage = "";
+        Optional<User> user = findByEmail(request.email());
+
+        if (user.isPresent()) {
+            User theUser = user.get();
+
+            if(passwordEncoder.matches(request.password(), theUser.getPassword())) {
+                if (theUser.isEnabled()) {
+                    returnMessage = "success";
+                } else {
+                    returnMessage = "User is disabled. Contact our support team.";
+                }
+            } else {
+                returnMessage = "Invalid email or password!";
+            }
+        } else {
+            returnMessage = "Invalid email or password!";
+        }
+
+        return returnMessage;
     }
 
     @Override
