@@ -1,12 +1,14 @@
 package com.aadhil.springemailverification.registration;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.aadhil.springemailverification.email.EmailSender;
 import com.aadhil.springemailverification.event.RegistrationCompleteEvent;
@@ -17,20 +19,21 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/register")
+@RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:5173")
 public class RegistrationController {
     private final UserService userService;
     private final ApplicationEventPublisher publisher;
     private final TokenRepository tokenRepository;
     private final EmailSender emailSender;
 
-    @PostMapping
-    public String register(@RequestBody RegistrationRequest registrationRequest, final HttpServletRequest request) {
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody RegistrationRequest registrationRequest, final HttpServletRequest request) {
         User user = userService.registerUser(registrationRequest);
 
         publisher.publishEvent(new RegistrationCompleteEvent(user, applicationUrl(request)));
 
-        return "Success! Please, check your email to verify your account.";
+        return ResponseEntity.ok("Success! Please, check your email to verify your account.");
     }
 
     @GetMapping("/verify")
@@ -42,7 +45,7 @@ public class RegistrationController {
     public String requestNewToken(@RequestParam("token") String oldToken, final HttpServletRequest request) {
         Token newToken = userService.generateNewToken(oldToken);
         User theUser = newToken.getUser();
-        String url = applicationUrl(request) + "/register/verify?token=" + newToken.getToken();
+        String url = applicationUrl(request) + "/api/verify?token=" + newToken.getToken();
 
         emailSender.send(theUser, url);
 

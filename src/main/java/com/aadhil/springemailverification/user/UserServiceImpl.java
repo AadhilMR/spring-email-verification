@@ -68,12 +68,13 @@ public class UserServiceImpl implements UserService {
             return "This account has already been verified!";
         }
         if(theToken.getExpirationTime().isBefore(LocalDateTime.now())) {
-            return "This token is already expired! Please try again with <a href='"+ applicationUrl +"/register/resend-token?token="+ token +"'>this</a>.";
+            return "This token is already expired! Please try again with <a href='"+ applicationUrl +"/api/resend-token?token="+ token +"'>this</a>.";
         }
         theUser.setEnabled(true);
         userRepository.save(theUser);
 
-        return "This account verified successfully! Click <a href='"+ applicationUrl +"/users'>here</a> to login to your account.";
+//        return "This account verified successfully! Now you can login to your account.";
+        return "This account verified successfully! Click <a href='http://localhost:5173/login'>here</a> to login to your account.";
     }
 
     @Override
